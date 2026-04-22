@@ -1,6 +1,10 @@
 use std::io;
+use std::fs;
 fn main() {
-    let mut tasks: Vec<String> = Vec::new();
+    let mut tasks: Vec<String> = match fs::read_to_string("tasks.txt"){
+        Ok(content)=>content.lines().map(|s| s.to_string()).collect(),
+        Err(_)=>Vec::new()    
+    };
     loop {
         println!("\n To-Do App");
         println!("1. Add Task");
@@ -20,6 +24,7 @@ fn main() {
                     continue;
                 }
                 tasks.push(task.trim().to_string());
+                fs::write("tasks.txt", tasks.join("\n")).expect("Unable to write file");
                 println!("Task successfully added!");
             }
             "2" => {
@@ -28,11 +33,11 @@ fn main() {
                 }
                 else{
                     println!("\n Your Tasks: ");
-                    for (i, task) in tasks.iter().enumerate() {
+                    for(i, task) in tasks.iter().enumerate(){
                         println!("[{}] {}", i, task);
                     }
-                }   
-            }
+                    }
+                }
             "3" => {
                 println!("Enter index to delete: ");
                 let mut index = String::new();
@@ -54,6 +59,7 @@ fn main() {
                 io::stdin().read_line(&mut confirm).expect("Failed");
                 if confirm.trim() == "y" {
                     tasks.remove(index);
+                    fs::write("tasks.txt", tasks.join("\n")).expect("Unable to write file");
                     println!("Task removed!");
                 }
                 else{
